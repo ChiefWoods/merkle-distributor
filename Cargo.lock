@@ -4,9 +4,9 @@ version = 4
 
 [[package]]
 name = "aho-corasick"
-version = "1.1.4"
+version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddd31a130427c27518df266943a5308ed92d4b226cc639f5a8f1002816174301"
+checksum = "c982642fa9e8606056828ee9a8505737230110bb1099153c79efe865c59d12ba"
 dependencies = [
  "memchr",
 ]
@@ -192,7 +192,10 @@ name = "merkle-distributor"
 version = "0.1.0"
 dependencies = [
  "quasar-lang",
+ "quasar-spl",
  "solana-instruction",
+ "solana-nostd-sha256",
+ "zeropod",
 ]
 
 [[package]]
@@ -261,7 +264,7 @@ dependencies = [
  "solana-instruction-view",
  "solana-program-error",
  "solana-program-log",
- "wincode 0.4.9",
+ "wincode",
  "zeropod",
 ]
 
@@ -269,6 +272,15 @@ dependencies = [
 name = "quasar-schema"
 version = "0.0.0"
 source = "git+https://github.com/blueshift-gg/quasar?branch=master#b0de7db4cd271654a2dcf78807dd865e98e0b339"
+
+[[package]]
+name = "quasar-spl"
+version = "0.0.0"
+source = "git+https://github.com/blueshift-gg/quasar?branch=master#b0de7db4cd271654a2dcf78807dd865e98e0b339"
+dependencies = [
+ "quasar-lang",
+ "solana-address",
+]
 
 [[package]]
 name = "quote"
@@ -293,9 +305,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.16"
+version = "0.4.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fcfdb36bda0c880c5931cdc7a2bcdc8ba4556847b9d912bca70bc94708711ad"
+checksum = "ad8553b9b26413251cbf30e620595c7a41b3887f03da04579c0e6b0d6a06b4b2"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -395,7 +407,7 @@ dependencies = [
  "solana-define-syscall",
  "solana-program-error",
  "solana-sanitize",
- "wincode 0.4.9",
+ "wincode",
 ]
 
 [[package]]
@@ -440,6 +452,15 @@ dependencies = [
  "solana-address",
  "solana-define-syscall",
  "solana-program-error",
+]
+
+[[package]]
+name = "solana-nostd-sha256"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f145a2b61326edf4670de39ae8189dd1e9593a9fcfc9494f97805ee07cc7455"
+dependencies = [
+ "sha2",
 ]
 
 [[package]]
@@ -579,19 +600,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wincode"
-version = "0.5.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66d967db7705dc29120bb6e8ce5b5a2e27734ed5976d1c904e95bd238d1c3c5a"
-dependencies = [
- "pastey",
- "proc-macro2",
- "quote",
- "thiserror",
- "wincode-derive",
-]
-
-[[package]]
 name = "wincode-derive"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -605,21 +613,21 @@ dependencies = [
 
 [[package]]
 name = "zeropod"
-version = "0.3.4"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02bf54fe57b0f544214965fc723702f3b85ee618ee94a17ccebde6a8a38b6700"
+checksum = "efea93c3bd4eaad26f65af88348e5e08077f4a4682adb37147765172100313c4"
 dependencies = [
  "solana-address",
  "solana-program-error",
- "wincode 0.5.5",
+ "wincode",
  "zeropod-derive",
 ]
 
 [[package]]
 name = "zeropod-derive"
-version = "0.3.4"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f444b5032717e1c56c573bdc2c645f16dd96f52c7989217f471cbf9e25382f5e"
+checksum = "8274ac397f401621161eb645a2bc19b641a81a4f4b4a1e0e4795867fe494f6b1"
 dependencies = [
  "proc-macro2",
  "quote",

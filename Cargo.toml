@@ -20,4 +20,9 @@ idl-build = ["quasar-lang/idl-build"]
 
 [dependencies]
 quasar-lang = { git = "https://github.com/blueshift-gg/quasar", branch = "master" }
+quasar-spl = { git = "https://github.com/blueshift-gg/quasar", branch = "master" }
 solana-instruction = { version = "3.2.0" }
+solana-nostd-sha256 = "0.2.0"
+# quasar-lang asks for zeropod ^0.3.3 → 0.3.4 pulls wincode 0.5 vs quasar's 0.4.
+# Pin version only — do not enable `wincode` here or SBF builds get duplicate panic_impl.
+zeropod = "=0.3.3"
