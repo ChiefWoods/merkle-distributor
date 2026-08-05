@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": ["node"]
+    "types": ["node", "bun"]
   },
-  "include": ["tests/*.test.ts"]
+  "include": ["tests/**/*.ts"]
 }
