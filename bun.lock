@@ -10,16 +10,23 @@
         "@solana/kit": "^6.4.0",
       },
       "devDependencies": {
-        "@noble/hashes": "^2.2.0",
         "@types/node": "^22.13.0",
         "husky": "^9.1.7",
         "lint-staged": "^17.3.0",
-        "merkletreejs": "^0.6.0",
         "oxfmt": "^0.62.0",
         "oxlint": "^1.77.0",
-        "papaparse": "^5.5.4",
         "typescript": "^5.9.3",
         "vitest": "^4.1.1",
+      },
+    },
+    "client": {
+      "name": "@merkle-distributor/client",
+      "version": "0.1.0",
+      "dependencies": {
+        "@noble/hashes": "^2.2.0",
+        "@solana/kit": "^6.4.0",
+        "merkletreejs": "^0.6.0",
+        "papaparse": "^5.5.4",
       },
     },
   },
@@ -37,6 +44,8 @@
     "@blueshift-gg/quasar-svm-win32-x64-msvc": ["@blueshift-gg/quasar-svm-win32-x64-msvc@0.1.5", "", { "os": "win32", "cpu": "x64" }, "sha512-+T8giW1+1/u4Mv0EgIohkWA2t5g8py1ZTHZxIu5U4TWI3mU70DBHG2GkdhudSBOl/OhVErE13+WZfvwM3QL2ew=="],
 
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.5", "", {}, "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="],
+
+    "@merkle-distributor/client": ["@merkle-distributor/client@workspace:client"],
 
     "@noble/hashes": ["@noble/hashes@2.2.0", "", {}, "sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg=="],
 

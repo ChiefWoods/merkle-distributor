@@ -2,6 +2,9 @@
   "name": "merkle-distributor",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "client"
+  ],
   "type": "module",
   "scripts": {
     "check-types": "tsc --noEmit",
@@ -18,14 +21,11 @@
     "@solana/kit": "^6.4.0"
   },
   "devDependencies": {
-    "@noble/hashes": "^2.2.0",
     "@types/node": "^22.13.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
-    "merkletreejs": "^0.6.0",
     "oxfmt": "^0.62.0",
     "oxlint": "^1.77.0",
-    "papaparse": "^5.5.4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.1"
   }

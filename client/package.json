@@ -1,0 +1,23 @@
+{
+  "name": "@merkle-distributor/client",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.2.0",
+    "@solana/kit": "^6.4.0",
+    "merkletreejs": "^0.6.0",
+    "papaparse": "^5.5.4"
+  }
+}
