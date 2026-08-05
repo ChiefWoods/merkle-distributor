@@ -25,6 +25,7 @@
     "merkletreejs": "^0.6.0",
     "oxfmt": "^0.62.0",
     "oxlint": "^1.77.0",
+    "papaparse": "^5.5.4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.1"
   }
