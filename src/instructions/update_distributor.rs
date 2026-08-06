@@ -7,11 +7,11 @@ use crate::{
 
 #[derive(Accounts)]
 pub struct UpdateDistributor {
-    #[account(
-        address = distributor.authority() @ MerkleDistributorError::InvalidDistributorAuthority
-    )]
     pub authority: Signer,
-    #[account(mut)]
+    #[account(
+        mut,
+        has_one(authority) @ MerkleDistributorError::InvalidDistributorAuthority
+    )]
     pub distributor: Account<Distributor>,
     pub event_authority: EventAuthority,
     pub program: Program<MerkleDistributor>,

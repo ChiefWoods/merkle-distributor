@@ -147,7 +147,7 @@ export function updateIx(
 
 export type ClawbackDefaults = {
   payer: Address;
-  distributorAuthority: Address;
+  authority: Address;
   clawbackReceiver: Address;
   distributor: Address;
   mint: Address;
@@ -162,7 +162,7 @@ export function clawbackIx(
 ): Instruction {
   return client.createClawbackInstruction({
     payer: defaults.payer,
-    distributorAuthority: defaults.distributorAuthority,
+    authority: defaults.authority,
     clawbackReceiver: defaults.clawbackReceiver,
     distributor: defaults.distributor,
     mint: defaults.mint,

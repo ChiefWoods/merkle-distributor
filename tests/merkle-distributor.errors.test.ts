@@ -108,7 +108,7 @@ describe("MerkleDistributor errors", () => {
     return buildClawbackIx(
       {
         payer: claimant.address,
-        distributorAuthority: authority.address,
+        authority: authority.address,
         clawbackReceiver: clawbackReceiver.address,
         distributor,
         mint: mint.address,
@@ -277,7 +277,7 @@ describe("MerkleDistributor errors", () => {
 
   it("rejects clawback with the wrong authority account (InvalidDistributorAuthority)", async () => {
     vm.setClock({ ...CLOCK, unixTimestamp: CLAWBACK_TIMESTAMP });
-    const result = vm.processInstruction(clawbackIx({ distributorAuthority: stranger.address }), [
+    const result = vm.processInstruction(clawbackIx({ authority: stranger.address }), [
       ...accounts,
       await createKeyedAssociatedTokenAccount(clawbackReceiver.address, mint.address, 0n),
     ]);

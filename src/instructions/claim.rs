@@ -13,7 +13,10 @@ use crate::{
 pub struct Claim {
     #[account(mut)]
     pub claimant: Signer,
-    #[account(mut)]
+    #[account(
+        mut,
+        has_one(mint) @ MerkleDistributorError::InvalidDistributorMint
+    )]
     pub distributor: Account<Distributor>,
     #[account(
         mut,
@@ -22,9 +25,6 @@ pub struct Claim {
         address = ClaimStatus::seeds(distributor.address(), claimant.address()),
     )]
     pub claim_status: Account<ClaimStatus>,
-    #[account(
-        address = distributor.mint @ MerkleDistributorError::InvalidDistributorMint
-    )]
     pub mint: Account<Mint>,
     /// not validated, guarded by CPI
     #[account(mut)]

@@ -204,7 +204,7 @@ describe("MerkleDistributor Program", () => {
     const result = vm.processInstruction(
       clawbackIx({
         payer: claimant.address,
-        distributorAuthority: authority.address,
+        authority: authority.address,
         clawbackReceiver: updatedClawbackReceiver.address,
         distributor,
         mint: mint.address,

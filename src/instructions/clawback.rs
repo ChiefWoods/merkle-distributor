@@ -10,20 +10,16 @@ use crate::{
 pub struct Clawback {
     #[account(mut)]
     pub payer: Signer,
+    #[account(mut)]
+    pub authority: UncheckedAccount,
+    pub clawback_receiver: UncheckedAccount,
     #[account(
         mut,
-        address = distributor.authority @ MerkleDistributorError::InvalidDistributorAuthority
+        has_one(authority) @ MerkleDistributorError::InvalidDistributorAuthority,
+        has_one(clawback_receiver) @ MerkleDistributorError::InvalidClawbackReceiver,
+        has_one(mint) @ MerkleDistributorError::InvalidDistributorMint
     )]
-    pub distributor_authority: UncheckedAccount,
-    #[account(
-        address = distributor.clawback_receiver @ MerkleDistributorError::InvalidClawbackReceiver
-    )]
-    pub clawback_receiver: UncheckedAccount,
-    #[account(mut)]
     pub distributor: Account<Distributor>,
-    #[account(
-        address = distributor.mint @ MerkleDistributorError::InvalidDistributorMint
-    )]
     pub mint: Account<Mint>,
     #[account(mut)]
     pub distributor_vault: Account<Token>,
@@ -97,7 +93,7 @@ impl Clawback {
         self.token_program
             .close_account(
                 self.distributor_vault.to_account_view(),
-                self.distributor_authority.to_account_view(),
+                self.authority.to_account_view(),
                 distributor.to_account_view(),
             )
             .invoke_signed(&distributor_signer_seeds)?;
