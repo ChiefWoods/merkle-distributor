@@ -21,6 +21,7 @@ pub struct CreateDistributor {
         address = Distributor::seeds(base.address()),
     )]
     pub distributor: Account<Distributor>,
+    // freeze authority checked in handler
     pub mint: Account<Mint>,
     #[account(
         mut,
@@ -50,7 +51,9 @@ pub struct CreateDistributor {
 
 impl CreateDistributor {
     /// 1. Validate claim and clawback periods.
-    /// 2. Creates a new distributor account.
+    /// 2. Validate merkle tree configuration.
+    /// 3. Validate mint is not freezeable.
+    /// 4. Creates a new distributor account.
     #[inline(always)]
     pub fn handler(
         &mut self,
@@ -75,6 +78,12 @@ impl CreateDistributor {
         require!(
             claim_timestamp < clawback_timestamp,
             MerkleDistributorError::ClaimPeriodAfterClawbackPeriod
+        );
+        require!(max_claim > 0, MerkleDistributorError::InvalidMaxClaim);
+        require!(max_nodes > 0, MerkleDistributorError::InvalidMaxNodes);
+        require!(
+            self.mint.freeze_authority().is_none(),
+            MerkleDistributorError::MintFreezeAuthoritySet
         );
 
         self.token_program

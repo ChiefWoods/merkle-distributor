@@ -26,8 +26,14 @@ pub struct Claim {
     )]
     pub claim_status: Account<ClaimStatus>,
     pub mint: Account<Mint>,
-    /// not validated, guarded by CPI
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token(
+            mint = mint,
+            authority = distributor,
+            token_program = token_program,
+        )
+    )]
     pub distributor_vault: Account<Token>,
     #[account(
         init(idempotent),
@@ -66,6 +72,8 @@ impl Claim {
             slot,
             ..
         } = Clock::get()?;
+
+        require!(amount > 0, MerkleDistributorError::NothingToClaim);
 
         let distributor = &mut self.distributor;
 
@@ -113,7 +121,10 @@ impl Claim {
             MerkleDistributorError::MaxNodesClaimedReached
         );
 
-        distributor.nodes_claimed += 1;
+        distributor.nodes_claimed = distributor
+            .nodes_claimed
+            .checked_add(1)
+            .ok_or(MerkleDistributorError::ArithmeticOverflow)?;
 
         let distributor_bump = [distributor.bump];
 

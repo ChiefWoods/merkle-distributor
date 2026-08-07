@@ -8,6 +8,7 @@ use crate::{
 
 #[derive(Accounts)]
 pub struct Clawback {
+    // permissionless
     #[account(mut)]
     pub payer: Signer,
     #[account(mut)]
@@ -21,7 +22,14 @@ pub struct Clawback {
     )]
     pub distributor: Account<Distributor>,
     pub mint: Account<Mint>,
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token(
+            mint = mint,
+            authority = distributor,
+            token_program = token_program,
+        )
+    )]
     pub distributor_vault: Account<Token>,
     #[account(
         init(idempotent),

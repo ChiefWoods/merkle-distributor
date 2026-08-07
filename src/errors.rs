@@ -26,6 +26,14 @@ pub enum MerkleDistributorError {
     MaxNodesClaimedReached,
     /// Clawback receiver does not match
     InvalidClawbackReceiver,
+    /// Claim amount must be greater than 0
+    NothingToClaim,
+    /// Max claim must be greater than 0
+    InvalidMaxClaim,
+    /// Max nodes must be greater than 0
+    InvalidMaxNodes,
+    /// Mint must not have a freeze authority
+    MintFreezeAuthoritySet,
     /// Arithmetic overflow
     ArithmeticOverflow,
 }

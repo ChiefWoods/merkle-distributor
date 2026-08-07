@@ -12,6 +12,9 @@ The TypeScript client (`buildDistributionFromCsv`) binds that list to a distribu
 
 On-chain, the distributor is initialized with that root and a vault funded to `maxTotalClaim`. A claimant redeems once by presenting their amount and Merkle proof; after the clawback window, any remainder can be clawed back by the distributor authority.
 
+> [!IMPORTANT]
+> Keep the distributor `base` address private until after `create_distributor` lands on-chain. The distributor PDA is derived only from `base`, and `base` does not need to sign initialization. If `base` is public beforehand, anyone can front-run create and occupy that PDA with their own authority, root, and clawback settings — forcing you to pick a new `base` and regenerate the Merkle tree. Generate `base` locally, derive the PDA, build the distribution, create on-chain, then publish the artifact.
+
 ## Built With
 
 ### Languages

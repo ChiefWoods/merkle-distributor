@@ -1,3 +1,5 @@
+// ArithmeticOverflow is not covered: a valid client tree cannot sum past u64, and
+// nodes_claimed overflow is unreachable given the nodes_claimed < max_nodes guard.
 import {
   createKeyPairSignerFromPrivateKeyBytes,
   generateKeyPairSigner,
@@ -400,8 +402,89 @@ describe("MerkleDistributor errors", () => {
     });
     const freshDistribution = buildDistribution(freshDistributor, [
       { claimant: claimant.address, amount: 5_000_000n },
+      { claimant: stranger.address, amount: 1_000_000n },
     ]);
     const created = vm.processInstruction(
+      await createDistributorIx({
+        base: freshBase.address,
+        distributorVault: freshVault,
+        max_total_claim: freshDistribution.maxTotalClaim,
+        max_nodes: 1n,
+        root: freshDistribution.root,
+      }),
+      [
+        ...accounts,
+        createKeyedSystemAccount(freshBase.address),
+        createKeyedSystemAccount(freshDistributor, 0n),
+        await createKeyedAssociatedTokenAccount(freshDistributor, mint.address, 0n),
+      ],
+    );
+    expect(created.status.ok, created.logs.join("\n")).toBe(true);
+
+    vm.setClock({ ...CLOCK, unixTimestamp: CLAIM_TIMESTAMP });
+    const firstClaim = freshDistribution.claims[0]!;
+    const firstClaimStatus = await findClaimStatusAddress(freshDistributor, claimant.address);
+    const firstResult = vm.processInstruction(
+      await buildClaimIx(
+        {
+          claimant: claimant.address,
+          distributor: freshDistributor,
+          mint: mint.address,
+          distributorVault: freshVault,
+          claimantTokenAccount,
+          eventAuthority,
+        },
+        firstClaim,
+      ),
+      [
+        ...created.accounts,
+        createKeyedSystemAccount(firstClaimStatus, 0n),
+        await createKeyedAssociatedTokenAccount(claimant.address, mint.address, 0n),
+      ],
+    );
+    expect(firstResult.status.ok, firstResult.logs.join("\n")).toBe(true);
+
+    const secondClaim = freshDistribution.claims[1]!;
+    const secondClaimStatus = await findClaimStatusAddress(freshDistributor, stranger.address);
+    const [strangerTokenAccount] = await findAssociatedTokenPda({
+      owner: stranger.address,
+      mint: mint.address,
+      tokenProgram: TOKEN_PROGRAM_ADDRESS,
+    });
+    const result = vm.processInstruction(
+      await buildClaimIx(
+        {
+          claimant: stranger.address,
+          distributor: freshDistributor,
+          mint: mint.address,
+          distributorVault: freshVault,
+          claimantTokenAccount: strangerTokenAccount,
+          eventAuthority,
+        },
+        secondClaim,
+      ),
+      [
+        ...firstResult.accounts,
+        createKeyedSystemAccount(secondClaimStatus, 0n),
+        await createKeyedAssociatedTokenAccount(stranger.address, mint.address, 0n),
+      ],
+    );
+    expectCustomError(result, "MaxNodesClaimedReached");
+  });
+
+  it("rejects create when max_nodes is zero (InvalidMaxNodes)", async () => {
+    vm.setClock(CLOCK);
+    const freshBase = await generateKeyPairSigner();
+    const freshDistributor = await findDistributorAddress(freshBase.address);
+    const [freshVault] = await findAssociatedTokenPda({
+      owner: freshDistributor,
+      mint: mint.address,
+      tokenProgram: TOKEN_PROGRAM_ADDRESS,
+    });
+    const freshDistribution = buildDistribution(freshDistributor, [
+      { claimant: claimant.address, amount: 5_000_000n },
+    ]);
+    const result = vm.processInstruction(
       await createDistributorIx({
         base: freshBase.address,
         distributorVault: freshVault,
@@ -416,31 +499,84 @@ describe("MerkleDistributor errors", () => {
         await createKeyedAssociatedTokenAccount(freshDistributor, mint.address, 0n),
       ],
     );
-    expect(created.status.ok, created.logs.join("\n")).toBe(true);
-    expect(created.logs.some((log) => log.includes("failed"))).toBe(false);
+    expectCustomError(result, "InvalidMaxNodes");
+  });
 
-    vm.setClock({ ...CLOCK, unixTimestamp: CLAIM_TIMESTAMP });
-    const claimStatus = await findClaimStatusAddress(freshDistributor, claimant.address);
-    const claim = freshDistribution.claims[0]!;
+  it("rejects create when max_total_claim is zero (InvalidMaxClaim)", async () => {
+    vm.setClock(CLOCK);
+    const freshBase = await generateKeyPairSigner();
+    const freshDistributor = await findDistributorAddress(freshBase.address);
+    const [freshVault] = await findAssociatedTokenPda({
+      owner: freshDistributor,
+      mint: mint.address,
+      tokenProgram: TOKEN_PROGRAM_ADDRESS,
+    });
     const result = vm.processInstruction(
-      await buildClaimIx(
-        {
-          claimant: claimant.address,
-          distributor: freshDistributor,
-          mint: mint.address,
-          distributorVault: freshVault,
-          claimantTokenAccount,
-          eventAuthority,
-        },
-        claim,
-      ),
+      await createDistributorIx({
+        base: freshBase.address,
+        distributorVault: freshVault,
+        max_total_claim: 0n,
+        max_nodes: 1n,
+      }),
       [
-        ...created.accounts,
-        createKeyedSystemAccount(claimStatus, 0n),
-        await createKeyedAssociatedTokenAccount(claimant.address, mint.address, 0n),
+        ...accounts,
+        createKeyedSystemAccount(freshBase.address),
+        createKeyedSystemAccount(freshDistributor, 0n),
+        await createKeyedAssociatedTokenAccount(freshDistributor, mint.address, 0n),
       ],
     );
-    expectCustomError(result, "MaxNodesClaimedReached");
+    expectCustomError(result, "InvalidMaxClaim");
+  });
+
+  it("rejects create when mint has a freeze authority (MintFreezeAuthoritySet)", async () => {
+    vm.setClock(CLOCK);
+    const freshBase = await generateKeyPairSigner();
+    const frozenMint = await generateKeyPairSigner();
+    const freshDistributor = await findDistributorAddress(freshBase.address);
+    const [freshVault] = await findAssociatedTokenPda({
+      owner: freshDistributor,
+      mint: frozenMint.address,
+      tokenProgram: TOKEN_PROGRAM_ADDRESS,
+    });
+    const [freshTokenAccount] = await findAssociatedTokenPda({
+      owner: authority.address,
+      mint: frozenMint.address,
+      tokenProgram: TOKEN_PROGRAM_ADDRESS,
+    });
+    const result = vm.processInstruction(
+      await createDistributorIx({
+        base: freshBase.address,
+        mint: frozenMint.address,
+        tokenAccount: freshTokenAccount,
+        distributorVault: freshVault,
+        max_total_claim: 1n,
+        max_nodes: 1n,
+      }),
+      [
+        ...accounts,
+        createKeyedSystemAccount(freshBase.address),
+        createKeyedSystemAccount(freshDistributor, 0n),
+        createKeyedMintAccount(frozenMint.address, {
+          decimals: 6,
+          freezeAuthority: authority.address,
+        }),
+        await createKeyedAssociatedTokenAccount(authority.address, frozenMint.address, 1n),
+        await createKeyedAssociatedTokenAccount(freshDistributor, frozenMint.address, 0n),
+      ],
+    );
+    expectCustomError(result, "MintFreezeAuthoritySet");
+  });
+
+  it("rejects claim with zero amount (NothingToClaim)", async () => {
+    vm.setClock({ ...CLOCK, unixTimestamp: CLAIM_TIMESTAMP });
+    const claimStatus = await findClaimStatusAddress(distributor, claimant.address);
+    const claim = distribution.claims[0]!;
+    const result = vm.processInstruction(await claimIx({ ...claim, amount: 0n }), [
+      ...accounts,
+      createKeyedSystemAccount(claimStatus, 0n),
+      await createKeyedAssociatedTokenAccount(claimant.address, mint.address, 0n),
+    ]);
+    expectCustomError(result, "NothingToClaim");
   });
 
   it("rejects clawback with the wrong mint (InvalidDistributorMint)", async () => {
